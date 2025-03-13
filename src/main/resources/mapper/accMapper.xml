@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="project.jennie.nexoracrm.repository.AccRepository">
+
+<select id="selectAccs" resultType="project.jennie.nexoracrm.domain.Acc">
+SELECT     
+    l.*
+FROM accounts l
+<choose>
+    <when test="role == 'MEMBER'">
+        <!-- 회원 본인의 데이터만 조회 -->
+        WHERE l.owner_name = (SELECT name FROM member WHERE userid = #{userid})
+    </when>
+    <when test="role == 'MANAGER'">
+        <!-- 관리자의 경우, 본인 및 관리하는 회원의 데이터 조회 -->
+        WHERE l.owner_name IN (
+        SELECT name FROM member WHERE manager_id = #{userid} OR userid = #{userid}
+        )
+    </when>
+    <when test="role == 'C_LEVEL'">
+        <!-- 모든 데이터 조회 -->
+        WHERE 1 = 1
+    </when>
+</choose>
+ORDER BY l.id DESC
+LIMIT #{stnum}, #{pageSize}
+</select>
+
+<select id="countAcc" resultType="int">
+    SELECT COUNT(*) cntld
+    FROM accounts l
+    <choose>
+        <when test="role == 'MEMBER'">
+            WHERE l.owner_name = (SELECT name FROM member WHERE userid = #{userid})
+        </when>
+        <when test="role == 'MANAGER'">
+            WHERE l.owner_name IN (
+            SELECT name FROM member WHERE manager_id = #{userid} OR userid = #{userid}
+            )
+        </when>
+        <when test="role == 'C_LEVEL'">
+            <!-- 모든 데이터 조회 -->
+            WHERE 1 = 1
+        </when>
+    </choose>
+</select>
+
+</mapper>

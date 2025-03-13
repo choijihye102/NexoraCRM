@@ -8,11 +8,11 @@
         <version>2.7.18</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example.jennie</groupId>
-    <artifactId>semiprojectv1</artifactId>
+    <groupId>project.jennie.nexoracrm</groupId>
+    <artifactId>nexoracrm</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>semiprojectv1</name>
-    <description>semiprojectv1</description>
+    <name>nexoracrm</name>
+    <description>nexoracrm</description>
     <url/>
     <licenses>
         <license/>

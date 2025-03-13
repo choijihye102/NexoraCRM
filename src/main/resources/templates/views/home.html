@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko"  xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="content">
+    <main id="content">
+
+        <!-- 대시보드 내용 -->
+        <div class="container">
+            <div class="dashboard">
+                <div class="current-revenue">
+                    <h3 th:text="${session.loginUser.name}+'님 오늘도 좋은하루입니다!'"></h3>
+
+                    <div class="chart-container">
+                        <!-- 각 그래프를 위한 컨테이너 -->
+                        <div class="chart-item">
+                            <div class="chart-title">단계별 금액 합계</div>
+                            <canvas id="barChart"></canvas>
+                        </div>
+                        <div class="chart-item">
+                            <div class="chart-title">단계별 건수</div>
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                        <div class="chart-item">
+                            <div class="chart-title">월별 금액 추이</div>
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                        <div class="chart-item">
+                            <div class="chart-title">담당자별 계약 금액</div>
+                            <canvas id="doughnutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="accounts-attention">
+                    <h3>Which Accounts Need My Attention?</h3>
+                    <p>
+                        Actual Revenue: <strong>$35M</strong>
+                    </p>
+                    <p>
+                        Planned Revenue: <strong>$45M</strong>
+                    </p>
+                    <p>
+                        Forecasted Revenue: <strong>$50M</strong>
+                    </p>
+                    <p>
+                        Revenue Realization: <strong>77%</strong>
+                    </p>
+
+                    <h3>Agreement Performance</h3>
+                    <p>
+                        Sales Agreement for Stratus: <strong>123%</strong>
+                    </p>
+                    <p>
+                        Sales Agreement for Acme: <strong>118%</strong>
+                    </p>
+                    <p>
+                        Sales Agreement for Michelin: <strong>101%</strong>
+                    </p>
+
+                    <h3>Product Performance</h3>
+                    <p>
+                        TR111 - Strut Transmission: <strong>123%</strong>
+                    </p>
+                    <p>
+                        TR111 - Strut Transmission: <strong>108%</strong>
+                    </p>
+
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:inline="javascript">
+        /* Thymeleaf 변수를 JavaScript에서 안전하게 사용 */
+        var barChartLabels = /*[[${barChartLabels}]]*/ [];
+        var barChartData = /*[[${barChartData}]]*/ [];
+
+        var pieChartLabels = /*[[${pieChartLabels}]]*/ [];
+        var pieChartData = /*[[${pieChartData}]]*/ [];
+
+        var lineChartLabels = /*[[${lineChartLabels}]]*/ [];
+        var lineChartData = /*[[${lineChartData}]]*/ [];
+
+        var doughnutChartLabels = /*[[${doughnutChartLabels}]]*/ [];
+        var doughnutChartData = /*[[${doughnutChartData}]]*/ [];
+
+        // 막대 그래프: 단계별 금액 합계
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: barChartLabels,
+                datasets: [{
+                    label: '단계별 금액 합계',
+                    data: barChartData,
+                    backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(153, 102, 255, 0.5)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(153, 102, 255, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 파이 차트: 단계별 건수
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: pieChartLabels,
+                datasets: [{
+                    data: pieChartData,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        labels: {
+                            color: '#333',
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</th:block>
+
+</html>

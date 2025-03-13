@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
     <header th:fragment="header">
-         <h1> SemiProject V1</h1>
+
+            <!-- 네비게이션 바 -->
+            <div class="navbar">
+                <!-- 상단 검색창 및 로고 섹션 -->
+                <div class="top-bar">
+                    <div class="logo-section">
+                        <img src="/images/logo.png" alt="Logo" class="logo">
+                    </div>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search..." class="search-input">
+
+                    </div>
+                    <div class="right-icons">
+
+				<span class="icon"><form method="post" action="/NexoraCRM2/">
+        <input type="hidden" name="action" value="logout">
+        <button type="submit">로그아웃</button>
+    </form></span> <img th:if="${session.loginUser != null}" th:src="@{/images/{img}(img=${session.loginUser.img})}"
+                        alt="Profile" class="profile-icon">
+                    </div>
+                </div>
+
+                <!-- 하단 메뉴 섹션 -->
+                <div class="menu-bar">
+                    <a href="/">Home</a>
+                    <a href="/lead/list">잠재고객</a>
+                    <a href="/acc/list">고객사</a>
+                    <a href="/contact/list">담당자</a>
+                    <a href="/oppty/list">영업관리</a>
+                    <a href="/setup/list">설정</a>
+                </div>
+            </div>
+
     </header>
 </html>

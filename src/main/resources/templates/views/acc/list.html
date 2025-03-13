@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko"  xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="css">
+    <link href="/css/lead.css" rel="stylesheet">
+</th:block>
+
+<th:block layout:fragment="content">
+
+    <main id="content" th:with="pglink=${(#strings.isEmpty(param.findkey)) ?
+                '/acc/list?cpg=' : '/acc/find?findkey=' + param.findkey + '&cpg=' }">
+
+        <div class="container">
+            <div class="box-container">
+                <div class="top-section">
+                    <div class="top-line-1">
+                        <button class="btn" id="acc_insert">추 가</button>
+                        <button class="btn" id="acc_delete">삭 제</button>
+                        <button class="btn">공유하기</button>
+                    </div>
+
+                    <!-- 추가 모달 -->
+                    <div class="overlay3"></div>
+                    <div class="modal" id="conversionModal3">
+                        <div class="modal-header">고객사 추가</div>
+                        <div class="section-header">상세 데이터</div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <label for="companyName3">회사명:</label>
+                                <input type="text" id="companyName3">
+                                <label for="CompanySize3">회사규모:</label>
+                                <input type="text" id="CompanySize3">
+                            </div>
+                            <div class="row">
+                                <label for="Website3">웹사이트:</label>
+                                <input type="text" id="Website3">
+                                <label for="Phone3">연락처:</label>
+                                <input type="text" id="Phone3">
+                            </div>
+                            <div class="row">
+                                <label for="Country3">국가:</label>
+                                <input type="text" id="Country3">
+                                <label for="Address3">주소:</label>
+                                <input type="text" id="Address3">
+                            </div>
+                            <div class="row">
+                                <label for="PostalCode3">우편번호:</label>
+                                <input type="text" id="PostalCode3">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-cancel" id="cancelModal3">취소</button>
+                            <button class="btn-submit" id="submitModal3">추가하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 검색 및 필터 -->
+                    <form method="get">
+                        <div class="top-line-2">
+                            <div class="dropdown-header">
+                                <select class="dropdown" name="filterOption" onchange="this.form.submit()">
+                                    <option value="all" selected>모든 고객사</option>
+                                    <option value="recent" >최근 조회된 고객사</option>
+                                    <option value="shared" >공유된 고객사</option>
+                                </select>
+                            </div>
+                            <input type="text" class="search-input" name="searchField" th:value="${param.searchField}" placeholder="검색어를 입력하세요.">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-container">
+                    <table class="leads-table">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>번호</th>
+                            <th>회사명</th>
+                            <th>회사규모</th>
+                            <th>연락처</th>
+                            <th>웹페이지</th>
+                            <th>주소</th>
+                            <th>국가</th>
+                            <th>소유자</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${accsdto == null}">
+                            <td colspan="9" align="center">조회된 고객사가 없습니다.</td>
+                        </tr>
+                        <tr th:each="acc, stat : ${accsdto.acclist}">
+                            <td><input type="checkbox" class="lead-checkbox" th:value="${acc.id}"></td>
+                            <td th:text="${totalCount - ((accsdto.cpg - 1) * 20 + stat.index)}">번호</td>
+                            <td>
+                                <a th:href="|/acc/view?id=${acc.id}&cpg=${accsdto.cpg}|"
+                                   th:text="${acc.companyName}">회사명</a>
+                            </td>
+                            <td th:text="${acc.companySize}">회사규모</td>
+                            <td th:text="${acc.phone}">연락처</td>
+                            <td th:text="${acc.website}">웹페이지</td>
+                            <td th:text="${acc.address}">주소</td>
+                            <td th:text="${acc.country}">국가</td>
+                            <td th:text="${acc.ownerName}">소유자</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="bootstrap-scope" align="center">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            <li class="page-item" th:if="${accsdto.cpg gt 10}">
+                                <a th:href="|${pglink}${accsdto.cpg - 1}|" class="page-link">이전</a>
+                            </li>
+                            <th:block th:each="i : ${#numbers.sequence(accsdto.stblk, accsdto.edblk)}">
+                                <li th:class="${(i ne accsdto.cpg) ? 'page-item' : 'page-item active'}">
+                                    <a th:href="|${pglink}${i}|" class="page-link" th:text="${i}">1</a>
+                                </li>
+                            </th:block>
+                            <li class="page-item" th:if="${accsdto.edblk > (accsdto.stblk + 9)}">
+                                <a th:href="|${pglink}${accsdto.cpg + 1}|" class="page-link">다음</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</th:block>
+
+<th:block layout:fragment="script">
+    <script src="/js/lead.js"></script>
+    <script th:inline="javascript">
+
+    </script>
+</th:block>
+
+</html>

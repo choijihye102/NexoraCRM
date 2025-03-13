@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ko"  xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="css">
+    <link href="/css/lead-view.css" rel="stylesheet">
+</th:block>
+
+<th:block layout:fragment="content">
+    <main>
+
+        <div class="container">
+            <div class="box-container">
+
+                <!-- Lead 데이터 존재 여부 확인 -->
+                <div th:if="${ld != null}">
+                    <div class="lv_top-box">
+                        <div class="lv_top-header">
+                            <div class="lv_lead-title">
+                                <h1>잠재고객 : <span th:text="${ld.company}"></span></h1>
+                            </div>
+
+                            <div class="lv_buttons">
+                                <button class="lv_btn" id="mdBtn">수 정</button>
+                                <button class="lv_btn" id="lv_btn">
+                                    목 록
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="lv_top-info">
+                            <div class="lv_info-group">
+                                <label>담당자</label> <span th:text="${ld.name}"></span>
+                            </div>
+                            <div class="lv_info-group">
+                                <label>국가</label> <span th:text="${ld.country}"></span>
+                            </div>
+                            <div class="lv_info-group">
+                                <label>연락처</label> <span th:text="${ld.phone}"></span>
+                            </div>
+                            <div class="lv_info-group">
+                                <label>영업사원</label> <span th:text="${ld.ownerName}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 단계 상태 표시 -->
+                    <div class="lv_path">
+                        <div class="lv_path-step lv_active" th:data-id="${ld.id}">발생</div>
+                        <div class="lv_path-step" th:data-id="${ld.id}">접촉단계</div>
+                        <div class="lv_path-step" th:data-id="${ld.id}">마감 - 전환 실패</div>
+                        <div class="lv_path-step" th:data-id="${ld.id}">마감 - 전환됨</div>
+                    </div>
+
+                    <!-- 알림 -->
+                    <div class="alert">단계 수정이 완료되었습니다.</div>
+
+                    <!-- Modal -->
+                    <div class="overlay"></div>
+                    <div class="modal" id="conversionModal">
+                        <div class="modal-header">잠재고객 전환</div>
+
+                        <div class="section-header">고객사 정보</div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <label for="companyName">회사명:</label>
+                                <input type="text" id="companyName" th:value="${ld.company}">
+
+                                <label for="address">주소:</label>
+                                <input type="text" id="address" th:value="${ld.address}">
+                            </div>
+                            <div class="row">
+                                <label for="companySize">회사 규모:</label>
+                                <input type="text" id="companySize" th:value="${ld.companySize}">
+
+                                <label for="country">국가:</label>
+                                <input type="text" id="country" th:value="${ld.country}">
+                            </div>
+                        </div>
+
+                        <div class="section-header">담당자 정보</div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <label for="contactName">이름:</label>
+                                <input type="text" id="contactName" th:value="${ld.name}">
+
+                                <input type="hidden" id="postalCode" th:value="${ld.postalCode}">
+                                <input type="hidden" id="phone" th:value="${ld.phone}">
+                                <input type="hidden" id="ownerName" th:value="${ld.ownerName}">
+                                <input type="hidden" id="mAddress" name="address" th:value="${ld.address}">
+
+                                <label for="email">이메일:</label>
+                                <input type="email" id="email" th:value="${ld.email}">
+                            </div>
+                        </div>
+
+                        <div class="section-header">영업관리 정보</div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <label for="salesName">영업명:</label>
+                                <input type="text" id="salesName">
+
+                                <label for="leadSource">유입경로:</label>
+                                <input type="text" id="leadSource" th:value="${ld.source}">
+                            </div>
+                            <div class="row">
+                                <label for="revenue">예상 매출금:</label>
+                                <input type="text" id="revenue">
+
+                                <label for="targetCloseDate">목표 마감일:</label>
+                                <input type="date" id="targetCloseDate">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn-cancel" id="cancelModal">취소</button>
+                            <button class="btn-submit" id="submitModal">전환하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 전환시 모달창 -->
+                    <div class="overlay2"></div>
+                    <div class="modal" id="conversionModal2">
+                        <div class="modal-header">고객사, 담당자, 영업관리 정보로 전환되었습니다.</div>
+                        <div class="m2_header-divider"></div>
+                        <!-- 얇은 긴 가로선 추가 -->
+
+                        <div class="m2_modal-body">
+                            <div class="m2_section">
+                                <div class="m2_icon-and-title">
+                                    <img src="/images/company.png" alt="Company Icon" class="m2_icon">
+                                    <h3>
+                                        <a id="account-link" href="#">
+                                            고객사<br> 바로가기
+                                        </a>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="m2_divider"></div>
+
+                            <div class="m2_section">
+                                <div class="m2_icon-and-title">
+                                    <img src="/images/contact.png" alt="Contact Icon" class="m2_icon">
+                                    <h3>
+                                        <a id="contact-link" href="#">
+                                            담당자<br> 바로가기
+                                        </a>
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="m2_divider"></div>
+
+                            <div class="m2_section">
+                                <div class="m2_icon-and-title">
+                                    <img src="/images/oppty.png" alt="Sales Icon" class="m2_icon">
+                                    <h3>
+                                        <a id="oppty-link" href="#">
+                                            영업관리 <br> 바로가기
+                                        </a>
+                                    </h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- 수정 모달 -->
+                    <div class="overlay3"></div>
+                    <div class="modal" id="conversionModal3">
+                        <div class="modal-header">잠재고객 수정</div>
+                        <div class="section-header">상세 데이터</div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <label for="companyName3">회사명:</label>
+                                <input type="text" id="companyName3" th:value="${ld.company}">
+                                <label for="address3">주소:</label>
+                                <input type="text" id="address3" th:value="${ld.address}">
+                            </div>
+                            <div class="row">
+                                <label for="mPostalCode3">우편번호:</label>
+                                <input type="text" id="mPostalCode3" th:value="${ld.postalCode}">
+                                <label for="country3">국가:</label>
+                                <input type="text" id="country3" th:value="${ld.country}">
+                            </div>
+                            <div class="row">
+                                <label for="mPhone3">연락처:</label>
+                                <input type="text" id="mPhone3" th:value="${ld.phone}">
+                                <label for="mResponse3">고객반응:</label>
+                                <input type="text" id="mResponse3" th:value="${ld.customerResponse}">
+                            </div>
+                            <div class="row">
+                                <label for="contactName3">담당자명:</label>
+                                <input type="text" id="contactName3" th:value="${ld.name}">
+                                <label for="email3">이메일:</label>
+                                <input type="email" id="email3" th:value="${ld.email}">
+                            </div>
+                            <div class="row">
+                                <label for="companySize3">회사 규모:</label>
+                                <input type="text" id="companySize3" th:value="${ld.companySize}">
+                                <label for="leadSource3">유입경로:</label>
+                                <input type="text" id="leadSource3" th:value="${ld.source}">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-cancel" id="cancelModal3">취소</button>
+                            <button class="btn-submit" id="submitModal3">수정하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 상세 정보 -->
+                    <div class="lv_main-content">
+                        <div class="lv_left-box">
+                            <div class="lv_details">
+                                <h2>Details</h2>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>회사명:</label>
+                                        <span th:text="${ld.company}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>회사규모:</label>
+                                        <span th:text="${ld.companySize}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>담당자명:</label>
+                                        <span th:text="${ld.name}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>연락처:</label>
+                                        <span th:text="${ld.phone}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>이메일:</label>
+                                        <span th:text="${ld.email}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>국가:</label>
+                                        <span th:text="${ld.country}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>주소:</label>
+                                        <span th:text="${ld.address}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>유입경로:</label>
+                                        <span th:text="${ld.source}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>고객반응:</label>
+                                        <span th:text="${ld.customerResponse}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>영업상태:</label>
+                                        <span id="statusField" th:text="${ld.status}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Box -->
+                        <div class="lv_right-box">
+                            <h2>Related</h2>
+                            <a href="#" class="lv_related-item">
+                                <div class="lv_image"></div>
+                                <div class="lv_text">We found no potential duplicates of this Lead.</div>
+                            </a>
+                            <a href="#" class="lv_related-item">
+                                <div class="lv_image"></div>
+                                <div class="lv_text">Campaign History</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+</th:block>
+
+<th:block layout:fragment="script">
+    <script src="/js/lead.js"></script>
+    <script th:inline="javascript">
+        let lv_btn = document.querySelector("#lv_btn");
+        //상태: path클릭시 상태 update 관련.
+        const currentStatus = document.getElementById('statusField').textContent.trim(); // Replace with actual dto.status value
+        const steps = document.querySelectorAll('.lv_path-step'); //단계들 : 발생, 접촉단계, 마감-전환실패, 마감- 전환됨  네가지 요소가 배열로 들어감.
+        const statusField2 = document.getElementById('statusField'); //lead 상태에서 클릭 이벤트 발생시, view 상세내역 상태 컬럼값 변경하는데 쓰임.
+        //상태: 마감됨때 전환하는 모달창
+        const modal = document.getElementById('conversionModal');
+        const overlay = document.querySelector('.overlay');
+        //전환 성공 콜백함수로 호출하는 모달창
+        const modal2 = document.getElementById('conversionModal2');
+        const overlay2 = document.querySelector('.overlay2');
+
+        // 목록 이동 이벤트
+        lv_btn.addEventListener('click', (e) => {
+            const cpg = [[${param.cpg[0]}]];
+            location.href = `/lead/list?cpg=${cpg}`;
+        });
+
+       // 상태변경 관련 이벤트
+       // view 화면 세팅될때, dto에 상태값 이하의 단계를 진행완료 상태로 보이게 css 단색 처리.
+        let activeIndex = -1;
+        steps.forEach((step, index) => {
+            if (step.textContent.trim() === currentStatus) {
+                activeIndex = index;
+            }
+        });
+        if (activeIndex >= 0) {
+            steps.forEach((step, index) => {
+                if (index <= activeIndex) {
+                    step.classList.add('lv_active');
+                }
+
+            });
+        }
+        //상태 step중 하나 클릭시,
+        steps.forEach((step, index) => {
+            step.addEventListener('click', () => {
+
+                // 디테일쪽 상태값도 변경
+                statusField2.textContent = step.textContent.trim();
+
+                // 클릭이벤트 메소드 중 : step 클래스 반복문돌림 - 클릭 영역 이하로 css 처리
+                steps.forEach((s, i) => {
+                    s.classList.remove('lv_active');
+                    if (i <= index) {
+                        s.style.backgroundcolor = '#9B8CB8';
+                        s.style.color= '#FFFFFF';
+                        s.classList.add('lv_active');
+
+                    }else{
+                        s.style.color= '#222537';
+                    }
+
+                });
+
+                // 클릭이벤트 메소드 중 :  알림 표시
+                const alert = document.querySelector('.alert');
+                alert.classList.add('show');
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                }, 3000);
+
+                // 클릭이벤트 메소드 중 :  "마감 - 전환됨" 단계에서 모달 표시
+                if (step.textContent.trim() === '마감 - 전환됨') {
+                    submitleadfrm(step.dataset.id, step.textContent.trim());
+
+                    modal.classList.add('active');
+                    overlay.classList.add('active');
+                } else {
+                    // "마감 - 전환됨" 단계 아닌경우, 비동기로 해당 lead id 튜플에 영업상태값 update 실행.
+                    submitleadfrm(step.dataset.id, step.textContent.trim());
+
+                }
+            });
+        });
+        // lead 상태 클릭 이벤트 끝****
+
+
+    </script>
+</th:block>
+
+</html>
