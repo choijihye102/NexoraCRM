@@ -8,7 +8,112 @@
 </th:block>
 
 <th:block layout:fragment="content">
-    <main id="content">
+    <main id="content" th:with="pglink=${(#strings.isEmpty(param.findkey)) ?
+                '/Contact/list?cpg=' : '/Contact/find?findkey=' + param.findkey + '&cpg=' }">
+        <div class="container">
+
+                <div class="box-container">
+                    <div class="top-section">
+                        <div class="top-line-1">
+                            <button class="btn" id="ld_insert">추 가</button>
+                            <button class="btn" id="ld_delete">삭 제</button>
+                            <button class="btn">공유하기</button>
+                        </div>
+
+                        <!-- 모달 -->
+                        <div class="overlay3"></div>
+                        <div class="modal" id="conversionModal3">
+                            <div class="modal-header">담당자 추가</div>
+
+                            <div class="section-header">상세 데이터</div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <label for="Name3">담당자명:</label>
+                                    <input type="text" id="Name3">
+
+                                    <label for="CompanyName3">회사명:</label>
+                                    <select name="companyName3" id="companyName3">
+                                        <option th:each="company : ${consdto}"
+                                                th:value="${company.id}"
+                                                th:text="${company.companyName}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="row">
+                                    <label for="department3">부서:</label> <input type="text" id="department3">
+                                    <label for="title3">직책:</label> <input type="text" id="title3">
+                                </div>
+
+                                <div class="row">
+                                    <label for="email3">이메일:</label> <input type="text" id="email3">
+                                    <label for="phone3">연락처:</label> <input type="text" id="phone3">
+                                </div>
+
+                                <div class="row">
+                                    <label for="birthday3">생일:</label> <input type="text" id="birthday3">
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn-cancel" id="cancelModal3">취소</button>
+                                <button class="btn-submit" id="submitModal3">추가하기</button>
+                            </div>
+                        </div>
+
+                        <!-- 검색 필터 -->
+                        <form method="get">
+                            <div class="top-line-2">
+                                <div class="dropdown-header">
+                                    <select class="dropdown" name="filterOption" onchange="this.form.submit()"
+                                            th:if="${map.filterOption != null}">
+                                        <option value="all" th:selected="${map.filterOption == 'all'}">모든 담당자</option>
+                                        <option value="recent" th:selected="${map.filterOption == 'recent'}">최근 조회된 담당자</option>
+                                        <option value="shared" th:selected="${map.filterOption == 'shared'}">공유된 담당자</option>
+                                    </select>
+                                </div>
+                                <input type="text" class="search-input" name="searchField" placeholder="검색어를 입력하세요.">
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 테이블 -->
+                    <div class="table-container">
+                        <table class="leads-table">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>번호</th>
+                                <th>담당자명</th>
+                                <th>부서</th>
+                                <th>직책</th>
+                                <th>이메일</th>
+                                <th>연락처</th>
+                                <th>생일</th>
+                                <th>소유자</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(contactList)}">
+                                <td colspan="9" align="center">조회된 담당자가 없습니다.</td>
+                            </tr>
+                            <tr th:each="row, stat : ${contactList}">
+                                <td><input type="checkbox" class="lead-checkbox" th:value="${row.id}"></td>
+                                <td th:text="${map.totalCount - ((map.pageNum - 1) * map.pageSize + stat.index)}"></td>
+                                <td>
+                                    <a th:href="@{'/contact_veiw.do'(id=${row.id}, pageNum=${map.pageNum}, searchField=${map.searchField}, filterOption=${map.filterOption})}"
+                                       th:text="${row.name}"></a>
+                                </td>
+                                <td th:text="${row.department}"></td>
+                                <td th:text="${row.title}"></td>
+                                <td th:text="${row.email}"></td>
+                                <td th:text="${row.phone}"></td>
+                                <td th:text="${row.birthday}"></td>
+                                <td th:text="${row.ownerName}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
 
 
     </main>

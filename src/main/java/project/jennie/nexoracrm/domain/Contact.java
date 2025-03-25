@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class Contact {
@@ -24,5 +25,8 @@ public class Contact {
     private LocalDateTime updateAt;
 
     private String ownerName;
+
+    private List<AccDTO> accList;
+
 
 }

@@ -2,78 +2,88 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="project.jennie.nexoracrm.repository.LeadRepository">
+<mapper namespace="project.jennie.nexoracrm.repository.OpptyRepository">
 
-<select id="selectLeads" resultType="project.jennie.nexoracrm.domain.LeadDTO">
-SELECT     
-    l.id,
-    l.name,
-    l.email,
-    l.phone,
-    l.company,
-    l.source,
-    l.status,
-    l.owner_name
-FROM leads l
-<choose>
-    <when test="role == 'MEMBER'">
-        <!-- 회원 본인의 데이터만 조회 -->
-        WHERE l.owner_name = (SELECT name FROM member WHERE userid = #{userid})
-    </when>
-    <when test="role == 'MANAGER'">
-        <!-- 관리자의 경우, 본인 및 관리하는 회원의 데이터 조회 -->
-        WHERE l.owner_name IN (
-        SELECT name FROM member WHERE manager_id = #{userid} OR userid = #{userid}
-        )
-    </when>
-    <when test="role == 'C_LEVEL'">
-        <!-- 모든 데이터 조회 -->
-        WHERE 1 = 1
-    </when>
-</choose>
-ORDER BY l.id DESC
-LIMIT #{stnum}, #{pageSize}
-</select>
+    <resultMap id="OpptyResultMap" type="project.jennie.nexoracrm.domain.OpptyViewDTO">
+        <id column="id" property="id"/>
+        <result column="opportunity_name" property="opportunityName"/>
+        <result column="amount" property="amount"/>
+        <result column="source" property="source"/>
+        <result column="target_close" property="targetClose" javaType="java.time.LocalDate"/>
+        <result column="stage" property="stage"/>
+        <result column="notes" property="notes"/>
+        <result column="close_date" property="closeDate" javaType="java.time.LocalDate"/>
+        <result column="contact_id" property="contatId"/>
+        <result column="account_id" property="accountId"/>
+        <result column="name" property="contactName"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="company_name" property="accountName"/>
+        <result column="address" property="address"/>
+        <result column="website" property="website"/>
+        <result column="created_at" property="createdAt" javaType="java.time.LocalDateTime"/>
+        <result column="updated_at" property="updatedAt" javaType="java.time.LocalDateTime"/>
+        <result column="owner_name" property="ownerName"/>
+    </resultMap>
 
-<select id="countLead" resultType="int">
-    SELECT COUNT(*) cntld
-    FROM leads l
-    <choose>
-        <when test="role == 'MEMBER'">
-            WHERE l.owner_name = (SELECT name FROM member WHERE userid = #{userid})
-        </when>
-        <when test="role == 'MANAGER'">
-            WHERE l.owner_name IN (
-            SELECT name FROM member WHERE manager_id = #{userid} OR userid = #{userid}
-            )
-        </when>
-        <when test="role == 'C_LEVEL'">
-            <!-- 모든 데이터 조회 -->
-            WHERE 1 = 1
-        </when>
-    </choose>
-</select>
+    <!-- resultType 대신 resultMap 사용 -->
+    <select id="readOneOppty" resultMap="OpptyResultMap">
+        SELECT
+        o.*,  -- opptys 테이블의 모든 컬럼
+        c.name AS contactName,
+        c.email AS email,
+        c.phone AS phone,
+        a.company_name AS accountName,
+        a.address AS address,
+        a.website AS website
+        FROM opptys o
+        LEFT JOIN contacts c ON o.contact_id  = c.id
+        LEFT JOIN accounts a ON o.account_id = a.id
+        WHERE o.id = #{id}
+    </select>
 
-<insert id="convertAcc"
-        parameterType="project.jennie.nexoracrm.domain.AccPassDTO"
-        useGeneratedKeys="true" keyProperty="accId">
-    insert into accounts(company_name,country,address,postal_code,company_size,owner_name)
-    values (#{companyName},#{country},#{address},#{postalCode},#{companySize},#{ownerName})
-</insert>
+    <select id="selecOppty" resultType="project.jennie.nexoracrm.domain.Oppty">
+        SELECT
+        o.*,
+        a.company_name AS accountName
+        FROM opptys o
+        LEFT JOIN accounts a ON o.account_id = a.id
+        <choose>
+            <when test="role == 'MEMBER'">
+                <!-- 회원 본인의 데이터만 조회 -->
+                WHERE o.owner_name = (SELECT name FROM member WHERE userid = #{userid})
+            </when>
+            <when test="role == 'MANAGER'">
+                <!-- 관리자의 경우, 본인 및 관리하는 회원의 데이터 조회 -->
+                WHERE o.owner_name IN (
+                SELECT name FROM member WHERE manager_id = #{userid} OR userid = #{userid}
+                )
+            </when>
+            <when test="role == 'C_LEVEL'">
+                <!-- 모든 데이터 조회 -->
+                WHERE 1 = 1
+            </when>
+        </choose>
+        ORDER BY o.id DESC
+        LIMIT #{stnum}, #{pageSize}
+    </select>
 
-<insert id="convertCont"
-        parameterType="project.jennie.nexoracrm.domain.ContactPassDTO"
-        useGeneratedKeys="true" keyProperty="conId">
-    insert into contacts(name,phone,email,owner_name,account_id)
-    values (#{name},#{phone},#{email},#{ownerName},#{accId})
-</insert>
-
-<insert id="convertOppty"
-        parameterType="project.jennie.nexoracrm.domain.OpptyPassDTO"
-        useGeneratedKeys="true" keyProperty="opptyId">
-    insert into opptys(opportunity_name,amount,source,target_close,owner_name,account_id,contact_id)
-    values (#{opportunityName},#{amount},#{source},#{targetClose},#{ownerName},#{accId},#{conId})
-</insert>
-
-
+    <select id="countOppty" resultType="int">
+        SELECT COUNT(*) cntld
+        FROM opptys o
+        <choose>
+            <when test="role == 'MEMBER'">
+                WHERE o.owner_name = (SELECT name FROM member WHERE userid = #{userid})
+            </when>
+            <when test="role == 'MANAGER'">
+                WHERE o.owner_name IN (
+                SELECT name FROM member WHERE manager_id = #{userid} OR userid = #{userid}
+                )
+            </when>
+            <when test="role == 'C_LEVEL'">
+                <!-- 모든 데이터 조회 -->
+                WHERE 1 = 1
+            </when>
+        </choose>
+    </select>
 </mapper>

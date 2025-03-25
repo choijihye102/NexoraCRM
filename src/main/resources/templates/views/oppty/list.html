@@ -4,14 +4,148 @@
       layout:decorate="~{layouts/layout}">
 
 <th:block layout:fragment="css">
-    <link href="/css/member.css" rel="stylesheet">
+    <link href="/css/lead.css" rel="stylesheet">
 </th:block>
 
 <th:block layout:fragment="content">
-    <main id="content">
+    <main id="content" th:with="pglink=${(#strings.isEmpty(param.findkey)) ?
+                '/oppty/list?cpg=' : '/oppty/find?findkey=' + param.findkey + '&cpg=' }">
+        <div class="container">
+            <!-- 상단 라인 -->
+            <div class="box-container">
+                <div class="top-section">
+                    <div class="top-line-1">
+                        <button class="btn" id="ld_insert">추 가</button>
+                        <button class="btn" id="ld_delete">삭 제</button>
+                        <button class="btn">공유하기</button>
+                    </div>
+
+                    <!-- 추가버튼 모달 라인 -->
+                    <div class="overlay3"></div>
+                    <div class="modal" id="conversionModal3">
+                        <div class="modal-header">영업관리 수정</div>
+
+                        <div class="section-header">상세 데이터</div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <label for="OpportunityName3">영업관리명:</label>
+                                <input type="text" id="OpportunityName3">
+                                <label for="getTargetClose3">목표마감일:</label>
+                                <input type="date" id="getTargetClose3">
+                            </div>
+
+                            <div class="row">
+                                <label for="getAmount3">금액:</label>
+                                <input type="text" id="getAmount3">
+                                <label for="getSource3">유입경로:</label>
+                                <input type="text" id="getSource3">
+                            </div>
+
+                            <div class="row">
+                                <label for="getStage3">단계:</label>
+                                <input type="text" id="getStage3" value="요구분석">
+                                <label for="getNotes3">노트:</label>
+                                <input type="text" id="getNotes3">
+                            </div>
+
+                            <div class="row">
+                                <label for="select1">회사명:</label>
+                                <select name="companyName3" class="com3" id="select1">
+                                    <option th:each="company : ${accountList}"
+                                            th:value="${company.id}"
+                                            th:text="${company.companyName}">
+                                    </option>
+                                </select>
+
+                                <label for="select2">담당자명:</label>
+                                <select name="contactName3" class="com3" id="select2" onclick="updateSelect2()">
+                                    <option value="">-- 선택 --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn-cancel" id="cancelModal3">취소</button>
+                            <button class="btn-submit" id="submitModal3">추가하기</button>
+                        </div>
+                    </div>
+
+                    <!-- 리스트 검색 폼 -->
+                    <form method="get">
+                        <div class="top-line-2">
+                            <div class="dropdown-header">
+                                <select class="dropdown" name="filterOption" onchange="this.form.submit()">
+                                    <option value="all" selected>모든 영업관리</option>
+                                    <option value="recent">최근 조회된 영업관리</option>
+                                    <option value="shared">공유된 영업관리</option>
+                                </select>
+                            </div>
+                            <input type="text" class="search-input" name="searchField" placeholder="검색어를 입력하세요.">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-container">
+                    <table class="leads-table">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>번호</th>
+                            <th>영업관리명</th>
+                            <th>금액</th>
+                            <th>영업단계</th>
+                            <th>목표마감일</th>
+                            <th>유입경로</th>
+                            <th>생성일</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${oppsdto == null}">
+                            <td colspan="8" align="center">조회된 영업관리건이 없습니다.</td>
+                        </tr>
+                        <tr th:each="oppty, stat : ${oppsdto.opptylist}">
+                            <td><input type="checkbox" class="lead-checkbox" th:value="${oppty.id}"></td>
+                            <td th:text="${totalCount - (((oppsdto.cpg -1 ) * 20) + stat.index)}">번호</td>
+                            <td>
+                                <a th:href="|/oppty/view?id=${oppty.id}&cpg=${oppsdto.cpg}|"
+                                   th:text="${oppty.accountName}"/>
+                            </td>
+                            <td th:text="${#numbers.formatCurrency(oppty.amount)}"></td>
+                            <td th:text="${oppty.stage}"></td>
+                            <td th:text="${oppty.targetClose}"></td>
+                            <td th:text="${oppty.source}"></td>
+                            <td th:text="${oppty.createdAt}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                    <!-- 페이징 처리 -->
+                <div class="bootstrap-scope" align="center">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            <!-- 현재 페이지가 1/10보다 '이전' 링크를 표시 -->
+                            <li class="page-item" th:if="${oppsdto.cpg gt 10}">
+                                <a th:href="|${pglink}${oppsdto.cpg - 1}|" class="page-link">이전</a></li>
+
+                            <th:block th:each="i : ${#numbers.sequence(oppsdto.stblk, oppsdto.edblk)}">
+                                <!-- i 와 cpg가 일치하지 않으면 평범하게 출력 -->
+                                <li th:class="${(i ne oppsdto.cpg) ? 'page-item' : 'page-item active'}">
+                                    <a th:href="|${pglink}${i}|"
+                                       class="page-link" th:text="${i}">1</a></li>
+                            </th:block>
 
 
+                            <li class="page-item" th:if="${oppsdto.edblk > (oppsdto.stblk + 9)}">
+                                <a th:href="|${pglink}${oppsdto.cpg + 1}|" class="page-link">다음</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
 
+                </div>
+            </div>
     </main>
 </th:block>
 

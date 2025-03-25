@@ -4,18 +4,160 @@
       layout:decorate="~{layouts/layout}">
 
 <th:block layout:fragment="css">
-    <link href="/css/member.css" rel="stylesheet">
+    <link href="/css/oppty-view.css" rel="stylesheet">
 </th:block>
 
 <th:block layout:fragment="content">
     <main id="content">
+        <div class="container">
+            <div class="box-container">
+                <div th:if="${op != null}">
+                    <!-- 상단 두 줄 박스 -->
+                    <div class="lv_top-box">
+                        <div class="lv_top-header">
+                            <div class="lv_lead-title">
+                                <h1 th:text="'영업관리 : ' + ${op.opportunityName}"></h1>
+                            </div>
+                            <div class="lv_buttons">
+                                <button class="lv_btn">공유하기</button>
+                                <button class="lv_btn" id="mdBtn">수 정</button>
+                                <button class="lv_btn" >목록</button>
+                            </div>
+                        </div>
+                        <div class="lv_top-info">
+                            <div class="lv_info-group">
+                                <label>영업관리명</label> <span th:text="${op.opportunityName}"></span>
+                            </div>
+                            <div class="lv_info-group">
+                                <label>목표마감일</label> <span th:text="${op.targetClose}"></span>
+                            </div>
+                            <div class="lv_info-group">
+                                <label>금액</label> <span th:text="${#numbers.formatCurrency(op.amount)} + '원'"></span>
+                            </div>
+                            <div class="lv_info-group">
+                                <label>영업사원</label> <span th:text="${op.ownerName}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Path Section -->
+                    <div class="lv_path">
+                        <div class="lv_path-step lv_active" th:data-id="${op.id}">요구분석</div>
+                        <div class="lv_path-step" th:data-id="${op.id}">견적서전송</div>
+                        <div class="lv_path-step" th:data-id="${op.id}">협상</div>
+                        <div class="lv_path-step" th:data-id="${op.id}">마감 - 영업실패</div>
+                        <div class="lv_path-step" th:data-id="${op.id}">마감 - 영업달성</div>
+                    </div>
+
+                    <!-- Alert Notification -->
+                    <div class="alert">단계 수정이 완료되었습니다.</div>
+
+                    <!-- Content Section -->
+                    <div class="lv_main-content">
+                        <div class="lv_left-box">
+                            <div class="lv_details">
+                                <h2>영업관리</h2>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>영업관리:</label> <span th:text="${op.opportunityName}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>금액:</label> <span th:text="${#numbers.formatCurrency(op.amount)} + '원'"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>목표마감일:</label> <span th:text="${op.targetClose}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>실제마감일:</label> <span th:text="${op.closeDate}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>유입경로:</label> <span th:text="${op.source}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>영업단계:</label> <span id="statusField" th:text="${op.stage}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>노트:</label> <span th:text="${op.notes}"></span>
+                                    </div>
+                                </div>
+
+                                <h2>고객사 | 담당자</h2>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>회사명:</label> <span th:text="${op.accountName}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>주소:</label> <span th:text="${op.address}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>웹페이지:</label> <span th:text="${op.website}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>이메일:</label> <span th:text="${op.email}"></span>
+                                    </div>
+                                </div>
+                                <div class="lv_row">
+                                    <div class="lv_column">
+                                        <label>담당자명:</label> <span th:text="${op.contactName}"></span>
+                                    </div>
+                                    <div class="lv_column">
+                                        <label>연락처:</label> <span th:text="${op.phone}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lv_right-box">
+                            <h2>Related</h2>
+                            <a href="#" class="lv_related-item">
+                                <div class="lv_image"></div>
+                                <div class="lv_text">We found no potential duplicates of this Lead.</div>
+                            </a>
+                            <a href="#" class="lv_related-item">
+                                <div class="lv_image"></div>
+                                <div class="lv_text">Campaign History</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--  전환시 모달창 -->
+        <div class="overlay2"></div>
+        <div class="modal" id="conversionModal2">
+            <div class="modal-header">최종 영업단계 완료되었습니다.</div>
+            <div class="m2_header-divider"></div>
+            <!-- 얇은 긴 가로선 추가 -->
+
+            <div class="contract-info">
+                <h3>
+                    <span th:text="|**영업관리명: ${op?.opportunityName ?: '정보 없음'}|"></span><br>
+                    <span th:text="|**계약 회사: ${op?.accountName ?: '정보 없음'}|"></span><br>
+                    <span th:text="|**계약 금액: ${op?.amount != null ? #numbers.formatCurrency(op.amount) : #numbers.formatCurrency(0)} 원|"></span>
+                </h3>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-submit" id="submitModal"> 확 인 </button>
+            </div>
+        </div>
+
+
+
 
 
     </main>
 </th:block>
 
 <th:block layout:fragment="script">
-    <script src="/js/lead.js"></script>
+    <script src="/js/oppty.js"></script>
     <script th:inline="javascript">
 
     </script>
